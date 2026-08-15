@@ -1,0 +1,39 @@
+version: '3.9'
+
+services:
+  # ── Neo4j Knowledge Graph ────────────────────────────────
+  neo4j:
+    image: neo4j:5
+    container_name: agrisense-neo4j
+    ports:
+      - "7474:7474"   # Neo4j Browser
+      - "7687:7687"   # Bolt protocol
+    environment:
+      NEO4J_AUTH: neo4j/agrikg2024
+      NEO4J_PLUGINS: '["apoc"]'
+      NEO4J_dbms_memory_heap_initial__size: 512m
+      NEO4J_dbms_memory_heap_max__size: 1G
+    volumes:
+      - neo4j_data:/data
+      - neo4j_logs:/logs
+    restart: unless-stopped
+
+  # ── PostgreSQL (for history/users) ───────────────────────
+  postgres:
+    image: postgres:15-alpine
+    container_name: agrisense-postgres
+    ports:
+      - "5432:5432"
+      
+    environment:
+      POSTGRES_DB: agri_db
+      POSTGRES_USER: agri
+      POSTGRES_PASSWORD: agri2024
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+volumes:
+  neo4j_data:
+  neo4j_logs:
+  postgres_data:

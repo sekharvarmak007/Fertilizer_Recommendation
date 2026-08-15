@@ -1,0 +1,34 @@
+# Virtual Environments
+venv/
+**/venv/
+ENV/
+env/
+.venv/
+
+# Node Modules & Build Outputs
+node_modules/
+**/node_modules/
+dist/
+build/
+.output/
+
+# Python Cache & Compiled Files
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+
+# Environment & Local Configuration
+.env
+.env.local
+.env.*.local
+*.log
+
+# IDE & OS Artifacts
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.tmp
