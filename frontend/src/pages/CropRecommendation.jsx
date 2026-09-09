@@ -121,7 +121,7 @@ export default function CropRecommendation() {
           {!cropResult ? (
             <div className="glass" style={{ padding: 48, textAlign: 'center', height: '100%', minHeight: 380, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 14 }}>
               <div style={{ fontSize: 48 }}>🌾</div>
-              <h3 style={{ margin: 0, color: '#1F3D1A' }}>{t.suitableCrops || 'Awaiting Soil & Climate Inputs'}</h3>
+              <h3 style={{ margin: 0, color: '#1F3D1A' }}>{t.awaitingInputs || 'Awaiting Soil & Climate Inputs'}</h3>
               <p style={{ color: '#485A43', fontSize: '0.92rem', maxWidth: 360, margin: 0 }}>
                 {t.cropSubtitle}
               </p>
@@ -148,7 +148,7 @@ export default function CropRecommendation() {
                       <span style={{ fontSize: '2rem' }}>{CROP_ICONS[crop.toLowerCase()] || '🌱'}</span>
                       <div>
                         <div style={{ fontSize: '1.2rem', fontWeight: 800, textTransform: 'capitalize', color: '#1F3D1A' }}>
-                          {crop} {isTop && <span className="badge badge-crop" style={{ fontSize: '0.72rem', verticalAlign: 'middle', marginLeft: 8 }}>{t.optimal || 'Top Recommendation'}</span>}
+                          {crop} {isTop && <span className="badge badge-crop" style={{ fontSize: '0.72rem', verticalAlign: 'middle', marginLeft: 8 }}>{t.topRecommendation || t.optimal || 'Top Recommendation'}</span>}
                         </div>
                         <div style={{ fontSize: '0.82rem', color: '#6E7F69' }}>
                           {t.season || 'Season'}: {season} · {t.fertilizer || 'Fertilizer'}: {fertilizer}

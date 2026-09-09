@@ -169,11 +169,11 @@ export default function LeafUpload() {
               <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
                 <button onClick={handleAnalyze} disabled={loading} className="btn-primary">
                   {loading
-                    ? <><RefreshCw size={15} style={{ animation: 'spin 1s linear infinite' }} /> Analyzing with AI...</>
+                    ? <><RefreshCw size={15} style={{ animation: 'spin 1s linear infinite' }} /> {t.analyzing || 'Analyzing with AI...'}</>
                     : <><Camera size={15} /> {t.analyzeLeafButton}</>}
                 </button>
                 <button onClick={resetAll} className="btn-secondary">
-                  <RefreshCw size={15} /> Scan Another Leaf
+                  <RefreshCw size={15} /> {t.scanAnotherLeaf || 'Scan Another Leaf'}
                 </button>
               </div>
             </div>
@@ -192,7 +192,7 @@ export default function LeafUpload() {
                 {isHealthy ? <CheckCircle2 size={20} color="#3F6B35" /> : <AlertTriangle size={20} color="#B5502A" />}
               </div>
               <div>
-                <div style={{ fontSize: '0.72rem', color: '#6E7F69', fontWeight: 800, textTransform: 'uppercase' }}>AI Plant Disease Diagnosis</div>
+                <div style={{ fontSize: '0.72rem', color: '#6E7F69', fontWeight: 800, textTransform: 'uppercase' }}>{t.diseaseDiagnosis || 'AI Plant Disease Diagnosis'}</div>
                 <div style={{ fontSize: '1.05rem', fontWeight: 800, color: '#1F3D1A' }}>Gemini Vision Analysis</div>
               </div>
             </div>
@@ -228,25 +228,25 @@ export default function LeafUpload() {
                 {/* Disease Name Banner */}
                 <div style={{ background: isHealthy ? 'rgba(63,107,53,0.08)' : 'rgba(181,80,42,0.07)', border: `1px solid ${isHealthy ? 'rgba(63,107,53,0.2)' : 'rgba(181,80,42,0.2)'}`, borderRadius: 12, padding: '18px 20px', marginBottom: 16, textAlign: 'center' }}>
                   <div style={{ fontSize: '2rem', marginBottom: 4 }}>{diseaseTypeIcon(diseaseResult.disease_type)}</div>
-                  <div style={{ fontSize: '0.72rem', color: '#6E7F69', fontWeight: 800, textTransform: 'uppercase', marginBottom: 4 }}>Detected Condition</div>
+                  <div style={{ fontSize: '0.72rem', color: '#6E7F69', fontWeight: 800, textTransform: 'uppercase', marginBottom: 4 }}>{t.detectedCondition || 'Detected Condition'}</div>
                   <div style={{ fontSize: '1.4rem', fontWeight: 900, color: mainColor, lineHeight: 1.2, marginBottom: 6 }}>
                     {diseaseResult.disease_name || diseaseResult.disease_label}
                   </div>
                   <div style={{ fontSize: '0.82rem', color: '#485A43', marginBottom: 8 }}>
-                    Confidence: <strong style={{ color: '#1F3D1A' }}>{((diseaseResult.confidence || 0) * 100).toFixed(1)}%</strong>
+                    {t.confidenceLabel || 'Confidence:'} <strong style={{ color: '#1F3D1A' }}>{((diseaseResult.confidence || 0) * 100).toFixed(1)}%</strong>
                   </div>
                   {/* Severity Badge */}
                   {diseaseResult.severity && diseaseResult.severity !== 'Unknown' && (
                     <div style={{ display: 'inline-block', background: severityStyle.bg, border: `1px solid ${severityStyle.border}`, borderRadius: 20, padding: '3px 12px', fontSize: '0.78rem', fontWeight: 800, color: severityStyle.text }}>
-                      {diseaseResult.severity} Severity
+                      {diseaseResult.severity} {t.severity || 'Severity'}
                     </div>
                   )}
                 </div>
 
                 {/* Key Details */}
-                <InfoRow icon="🌱" label="Plant Species" value={diseaseResult.plant_type} />
-                <InfoRow icon="🔬" label="Disease Type" value={diseaseResult.disease_type} />
-                <InfoRow icon="👁" label="Visible Symptoms" value={diseaseResult.symptoms} />
+                <InfoRow icon="🌱" label={t.plantSpecies || 'Plant Species'} value={diseaseResult.plant_type} />
+                <InfoRow icon="🔬" label={t.diseaseType || 'Disease Type'} value={diseaseResult.disease_type} />
+                <InfoRow icon="👁" label={t.symptoms || 'Visible Symptoms'} value={diseaseResult.symptoms} />
               </div>
 
               {/* Right Column — Treatment & Alternatives */}
@@ -255,7 +255,7 @@ export default function LeafUpload() {
                 <div style={{ background: 'rgba(181,80,42,0.07)', border: '1px solid rgba(181,80,42,0.2)', borderRadius: 12, padding: '14px 16px', marginBottom: 14 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
                     <FlaskConical size={14} color="#B5502A" />
-                    <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#B5502A', textTransform: 'uppercase' }}>Treatment Plan</span>
+                    <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#B5502A', textTransform: 'uppercase' }}>{t.treatmentPlan || 'Treatment Plan'}</span>
                   </div>
                   <div style={{ fontSize: '0.86rem', color: '#1F3D1A', lineHeight: 1.65, fontWeight: 500 }}>
                     {diseaseResult.treatment || 'Consult an agronomist.'}
@@ -267,7 +267,7 @@ export default function LeafUpload() {
                   <div style={{ background: 'rgba(63,107,53,0.07)', border: '1px solid rgba(63,107,53,0.2)', borderRadius: 12, padding: '14px 16px', marginBottom: 14 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
                       <Shield size={14} color="#3F6B35" />
-                      <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#3F6B35', textTransform: 'uppercase' }}>Prevention</span>
+                      <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#3F6B35', textTransform: 'uppercase' }}>{t.prevention || 'Prevention'}</span>
                     </div>
                     <div style={{ fontSize: '0.86rem', color: '#1F3D1A', lineHeight: 1.65, fontWeight: 500 }}>
                       {diseaseResult.prevention}
@@ -280,7 +280,7 @@ export default function LeafUpload() {
                   <div>
                     <div style={{ fontSize: '0.72rem', fontWeight: 800, color: '#6E7F69', textTransform: 'uppercase', marginBottom: 10 }}>
                       <Info size={11} style={{ verticalAlign: 'middle', marginRight: 4 }} />
-                      Other Possibilities
+                      {t.otherPossibilities || 'Other Possibilities'}
                     </div>
                     {diseaseResult.disease_classes.slice(0, 4).map(({ label, confidence }, i) => (
                       <ConfidenceBar
@@ -306,8 +306,8 @@ export default function LeafUpload() {
               <Leaf size={18} color="#3F6B35" />
             </div>
             <div>
-              <div style={{ fontSize: '0.72rem', color: '#6E7F69', fontWeight: 800, textTransform: 'uppercase' }}>Nutrient Assessment</div>
-              <div style={{ fontSize: '1.02rem', fontWeight: 800, color: '#1F3D1A' }}>Nutrient Deficiency Diagnosis</div>
+              <div style={{ fontSize: '0.72rem', color: '#6E7F69', fontWeight: 800, textTransform: 'uppercase' }}>{t.nutrientAssessment || 'Nutrient Assessment'}</div>
+              <div style={{ fontSize: '1.02rem', fontWeight: 800, color: '#1F3D1A' }}>{t.deficiencyDiagnosis || 'Nutrient Deficiency Diagnosis'}</div>
             </div>
           </div>
 
@@ -324,12 +324,12 @@ export default function LeafUpload() {
           ) : (
             <>
           <div style={{ background: '#F4F7EE', border: '1px solid rgba(31,61,26,0.08)', borderRadius: 12, padding: '16px 20px', marginBottom: 20, textAlign: 'center' }}>
-            <div style={{ fontSize: '0.72rem', color: '#6E7F69', fontWeight: 800, textTransform: 'uppercase', marginBottom: 4 }}>Nutrient Condition</div>
+            <div style={{ fontSize: '0.72rem', color: '#6E7F69', fontWeight: 800, textTransform: 'uppercase', marginBottom: 4 }}>{t.detectedCondition || 'Nutrient Condition'}</div>
             <div style={{ fontSize: '1.45rem', fontWeight: 900, color: (deficiencyResult.deficiency_type || '').toLowerCase().includes('healthy') ? '#3F6B35' : '#B5502A' }}>
               {deficiencyResult.deficiency_type}
             </div>
             <div style={{ fontSize: '0.85rem', color: '#485A43', marginTop: 4 }}>
-              Confidence: <strong style={{ color: '#1F3D1A' }}>{((deficiencyResult.confidence || 0) * 100).toFixed(1)}%</strong>
+              {t.confidenceLabel || 'Confidence:'} <strong style={{ color: '#1F3D1A' }}>{((deficiencyResult.confidence || 0) * 100).toFixed(1)}%</strong>
             </div>
           </div>
 
@@ -346,7 +346,7 @@ export default function LeafUpload() {
 
           {deficiencyResult.advice && (
             <div style={{ background: 'rgba(63,107,53,0.08)', border: '1px solid rgba(63,107,53,0.25)', borderRadius: 10, padding: '14px 16px' }}>
-              <div style={{ fontSize: '0.75rem', color: '#3F6B35', fontWeight: 800, textTransform: 'uppercase', marginBottom: 4 }}>Correction Plan</div>
+              <div style={{ fontSize: '0.75rem', color: '#3F6B35', fontWeight: 800, textTransform: 'uppercase', marginBottom: 4 }}>{t.correctionPlan || 'Correction Plan'}</div>
               <div style={{ fontSize: '0.88rem', color: '#1F3D1A', lineHeight: 1.6, fontWeight: 500 }}>{deficiencyResult.advice}</div>
             </div>
           )}
@@ -361,7 +361,7 @@ export default function LeafUpload() {
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <CheckCircle2 size={24} color="#3F6B35" />
             <div>
-              <div style={{ fontWeight: 800, color: '#1F3D1A', marginBottom: 2 }}>Multimodal Leaf Analysis Complete</div>
+              <div style={{ fontWeight: 800, color: '#1F3D1A', marginBottom: 2 }}>{t.leafAnalysisComplete || 'Multimodal Leaf Analysis Complete'}</div>
               <div style={{ color: '#485A43', fontSize: '0.88rem' }}>
                 Disease: <strong>{diseaseResult.disease_name || diseaseResult.disease_label}</strong> &nbsp;|&nbsp;
                 Nutrient: <strong>{deficiencyResult.deficiency_type}</strong> — saved to session for fertilizer planning.

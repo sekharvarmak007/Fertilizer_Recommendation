@@ -589,7 +589,7 @@ export default function FertilizerRecommendation() {
           <div style={{ display: 'flex', alignItems: 'flex-start', gap: 20, flexWrap: 'wrap' }}>
             <div style={{ flex: 1, minWidth: 240 }}>
               <div className="badge badge-crop" style={{ marginBottom: 10 }}>
-                {cropProfile.icon} Precision Nutrient Prescription for {cropProfile.name}
+                {cropProfile.icon} {t.precisionNutrientPrescription || 'Precision Nutrient Prescription'} for {cropProfile.name}
               </div>
               <div style={{ fontSize: '1.9rem', fontWeight: 900, color: '#1F3D1A', marginBottom: 4 }}>
                 {cropProfile.fertilizer}
@@ -619,7 +619,7 @@ export default function FertilizerRecommendation() {
           {/* Montana Calculations Table for Active Crop */}
           <div className="glass" style={{ padding: 28 }}>
             <h3 style={{ margin: '0 0 18px', fontSize: '1.02rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: 8, color: '#1F3D1A' }}>
-              <Calculator size={18} color="#3F6B35" /> Montana Equations ({cropProfile.name})
+              <Calculator size={18} color="#3F6B35" /> {t.montanaEquations || 'Montana Equations'} ({cropProfile.name})
             </h3>
             <table className="data-table">
               <tbody>
@@ -627,10 +627,10 @@ export default function FertilizerRecommendation() {
                   [`Total N Required (${cropProfile.name} Demand)`, `${dynamicCalc.totalNReq} lb/acre`],
                   ['Soil Available N (from User Lab Test)', `${dynamicCalc.availN} lb/acre`],
                   ['Organic Matter (SOM) Adjustment', `${dynamicCalc.somAdj > 0 ? '+' : ''}${dynamicCalc.somAdj} lb/acre`],
-                  ['Net Fertilizer N Required (Deficit)', `${dynamicCalc.deficitN} lb/acre`],
-                  ['Urea Application Dose (46% N)', `${dynamicCalc.ureaKg} kg/acre`],
-                  [`MAP Application Dose (${cropProfile.name} P₂O₅)`, `${dynamicCalc.mapKg} kg/acre`],
-                  [`MOP Application Dose (${cropProfile.name} K₂O)`, `${dynamicCalc.mopKg} kg/acre`],
+                  [`${t.netFertilizerDeficit || 'Net Fertilizer Deficit'}`, `${dynamicCalc.deficitN} lb/acre`],
+                  [`${t.ureaDose || 'Urea Dose'} (46% N)`, `${dynamicCalc.ureaKg} kg/acre`],
+                  [`${t.mapDose || 'MAP Dose'} (${cropProfile.name} P₂O₅)`, `${dynamicCalc.mapKg} kg/acre`],
+                  [`${t.mopDose || 'MOP Dose'} (${cropProfile.name} K₂O)`, `${dynamicCalc.mopKg} kg/acre`],
                 ].map(([k, v]) => (
                   <tr key={k}>
                     <td style={{ color: '#485A43', fontWeight: 600 }}>{k}</td>
@@ -762,13 +762,13 @@ export default function FertilizerRecommendation() {
         {/* Application Schedule for Active Crop */}
         <div className="glass" style={{ padding: 26 }}>
           <h3 style={{ margin: '0 0 16px', fontSize: '1.02rem', fontWeight: 800, color: '#1F3D1A' }}>
-            📅 {t.dosagePlan || 'Recommended Application Timeline'} ({cropProfile.name})
+            📅 {t.applicationTimeline || t.dosagePlan || 'Recommended Application Timeline'} ({cropProfile.name})
           </h3>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 14 }}>
             {cropProfile.schedule.map((s, idx) => (
               <div key={idx} style={{ background: '#F4F7EE', border: '1px solid rgba(31, 61, 26, 0.1)', borderRadius: 10, padding: '14px 16px' }}>
                 <div style={{ fontSize: '0.78rem', color: '#3F6B35', fontWeight: 800, textTransform: 'uppercase', marginBottom: 4 }}>
-                  {t.season || 'Stage'} {idx + 1}: {s.timing}
+                  {t.stage || t.season || 'Stage'} {idx + 1}: {s.timing}
                 </div>
                 <div style={{ fontSize: '0.88rem', color: '#1F3D1A', fontWeight: 600 }}>
                   {s.action}
@@ -781,7 +781,7 @@ export default function FertilizerRecommendation() {
         {/* Quick Chat Link */}
         <div className="glass" style={{ padding: '18px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 14, background: 'rgba(47, 94, 115, 0.05)', borderColor: '#2F5E73' }}>
           <div>
-            <div style={{ fontSize: '0.95rem', fontWeight: 800, color: '#1F3D1A' }}>{t.chatWithAgronomist || 'Have questions about fertilizer dosing?'}</div>
+            <div style={{ fontSize: '0.95rem', fontWeight: 800, color: '#1F3D1A' }}>{t.haveQuestions || t.chatWithAgronomist || 'Have questions about fertilizer dosing?'}</div>
             <div style={{ fontSize: '0.8rem', color: '#485A43' }}>{t.chatSubtitle}</div>
           </div>
           <Link to="/chatbot" className="btn-primary" style={{ fontSize: '0.85rem', padding: '8px 18px', gap: 6, background: '#2F5E73' }}>

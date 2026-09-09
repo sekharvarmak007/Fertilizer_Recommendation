@@ -12,8 +12,8 @@ const navKeys = [
   { path: '/soil',       key: 'soil',       icon: FlaskConical },
   { path: '/leaf',       key: 'leaf',       icon: Camera },
   { path: '/crop',       key: 'crops',      icon: Leaf },
-  { path: '/fertilizer', key: 'fertilizer', icon: Sprout },
   { path: '/weather',    key: 'weather',    icon: CloudSun },
+  { path: '/fertilizer', key: 'fertilizer', icon: Sprout },
   { path: '/knowledge',  key: 'knowledge',  icon: Network },
   { path: '/chatbot',    key: 'chatbot',    icon: MessageSquare },
 ]

@@ -41,52 +41,52 @@ export default function Home() {
     {
       icon: FlaskConical, color: '#3F6B35', bg: 'rgba(63, 107, 53, 0.12)',
       title: t.soil || 'Soil Fertility Analysis',
-      desc: 'XGBoost-powered prediction of soil health from N, P, K, pH, EC, and organic carbon values.',
+      desc: t.soilSubtitle || 'XGBoost-powered prediction of soil health from N, P, K, pH, EC, and organic carbon values.',
       path: '/soil', label: t.analyzeSoil || 'Analyze Soil'
     },
     {
       icon: Camera, color: '#B5502A', bg: 'rgba(181, 80, 42, 0.12)',
-      title: t.leaf || 'Plant Disease & Deficiency',
-      desc: 'YOLOv11 vision models identify crop diseases and visual nutrient deficiencies in seconds.',
+      title: t.plantDiseaseDeficiency || t.leaf || 'Plant Disease & Deficiency',
+      desc: t.plantDiseaseDeficiencyDesc || 'YOLOv11 vision models identify crop diseases and visual nutrient deficiencies in seconds.',
       path: '/leaf', label: t.uploadLeaf || 'Scan Leaf'
     },
     {
       icon: Leaf, color: '#3F6B35', bg: 'rgba(63, 107, 53, 0.12)',
       title: t.crops || 'Crop Recommendation',
-      desc: 'Discover the most suitable crop for your soil and climate using machine learning classifiers.',
+      desc: t.cropRecommendationDesc || 'Discover the most suitable crop for your soil and climate using machine learning classifiers.',
       path: '/crop', label: t.cropSuitability || 'Find Crops'
     },
     {
       icon: Sprout, color: '#5C3A21', bg: 'rgba(92, 58, 33, 0.12)',
-      title: t.fertilizer || 'Fertilizer Planning',
-      desc: 'Montana scientific formulas compute exact Urea, MAP, and MOP dosages with split schedules.',
+      title: t.fertilizerPlanning || t.fertilizer || 'Fertilizer Planning',
+      desc: t.fertilizerPlanningDesc || 'Montana scientific formulas compute exact Urea, MAP, and MOP dosages with split schedules.',
       path: '/fertilizer', label: t.getRecommendation || 'Get Plan'
     },
     {
       icon: CloudSun, color: '#2F5E73', bg: 'rgba(47, 94, 115, 0.12)',
-      title: t.weather || 'Weather Intelligence',
-      desc: 'Live forecast integration with rainfall alerts to prevent fertilizer runoff and leaching.',
+      title: t.weatherIntelligence || t.weather || 'Weather Intelligence',
+      desc: t.weatherIntelligenceDesc || 'Live forecast integration with rainfall alerts to prevent fertilizer runoff and leaching.',
       path: '/weather', label: t.weather || 'Check Weather'
     },
     {
       icon: Network, color: '#2F5E73', bg: 'rgba(47, 94, 115, 0.12)',
       title: t.knowledge || 'Knowledge Graph',
-      desc: 'Explore crop→nutrient→deficiency relationships in an interactive Neo4j ontology graph.',
+      desc: t.knowledgeGraphDesc || 'Explore crop→nutrient→deficiency relationships in an interactive Neo4j ontology graph.',
       path: '/knowledge', label: t.knowledge || 'Explore Graph'
     },
     {
       icon: MessageSquare, color: '#1F3D1A', bg: 'rgba(31, 61, 26, 0.12)',
-      title: t.chatbot || 'AI Farming Assistant',
-      desc: 'Ask anything to our GPT-4o & Llama 3 agricultural copilot for real-time recommendations.',
+      title: t.aiFarmingAssistant || t.chatbot || 'AI Farming Assistant',
+      desc: t.aiFarmingAssistantDesc || 'Ask anything to our agricultural copilot for real-time recommendations.',
       path: '/chatbot', label: t.aiAssistant || 'Ask AI'
     },
   ]
 
   const stats = [
-    { label: 'Crops Supported',    end: 24,   suffix: '+' },
-    { label: 'Disease Classes',    end: 38,   suffix: '+' },
-    { label: 'Model Accuracy',     end: 96,   suffix: '%' },
-    { label: 'Formulas Applied',   end: 7,    suffix: '' },
+    { label: t.cropsSupported || 'Crops Supported',    end: 24,   suffix: '+' },
+    { label: t.diseaseClasses || 'Disease Classes',    end: 38,   suffix: '+' },
+    { label: t.modelAccuracy || 'Model Accuracy',     end: 96,   suffix: '%' },
+    { label: t.formulasApplied || 'Formulas Applied',   end: 7,    suffix: '' },
   ]
 
   const pipeline = [
@@ -94,8 +94,8 @@ export default function Home() {
     { step: '02', label: t.leaf || 'Leaf Scan',           color: '#B5502A', icon: Camera },
     { step: '03', label: t.weather || 'Weather Data',        color: '#2F5E73', icon: CloudSun },
     { step: '04', label: t.knowledge || 'Knowledge Graph',     color: '#5C3A21', icon: Network },
-    { step: '05', label: 'Montana Formulas',    color: '#3F6B35', icon: Zap },
-    { step: '06', label: 'AI Advisory',         color: '#1F3D1A', icon: Star },
+    { step: '05', label: t.montanaFormulas || 'Montana Formulas',    color: '#3F6B35', icon: Zap },
+    { step: '06', label: t.aiAdvisory || 'AI Advisory',         color: '#1F3D1A', icon: Star },
   ]
 
   return (
@@ -121,7 +121,7 @@ export default function Home() {
             fontFamily: 'Space Grotesk, sans-serif', letterSpacing: '-0.03em',
             lineHeight: 1.15, margin: '0 0 20px', color: '#1F3D1A'
           }}>
-            Multimodal AI <span style={{ color: '#3F6B35' }}>Fertilizer</span> & <span style={{ color: '#2F5E73' }}>Crop</span> Advisor
+            {t.heroTitle || 'Multimodal AI Fertilizer & Crop Advisor'}
           </h1>
 
           <p className="animate-fade-in-up stagger-2" style={{
@@ -169,14 +169,14 @@ export default function Home() {
       <section style={{ padding: '76px 24px', maxWidth: 1280, margin: '0 auto' }}>
         <div style={{ textAlign: 'center', marginBottom: 50 }}>
           <div className="badge badge-water" style={{ display: 'inline-flex', marginBottom: 10 }}>
-            <BarChart3 size={13} /> 7 Intelligent Modules
+            <BarChart3 size={13} /> {t.intelligentModules || '7 Intelligent Modules'}
           </div>
           <h2 style={{ fontSize: 'clamp(1.6rem, 3vw, 2.3rem)', fontWeight: 800, margin: '0 0 10px', color: '#1F3D1A' }}>
-            Everything You Need for <span style={{ color: '#3F6B35' }}>Smart Agriculture</span>
+            {t.everythingForSmartAgri || 'Everything You Need for Smart Agriculture'}
           </h2>
           <div className="section-divider" style={{ margin: '0 auto 16px' }} />
           <p style={{ color: '#485A43', fontSize: '1rem', maxWidth: 580, margin: '0 auto', lineHeight: 1.5 }}>
-            Each module is powered by specialized machine learning models and validated agricultural science.
+            {t.moduleDesc || 'Each module is powered by specialized machine learning models and validated agricultural science.'}
           </p>
         </div>
 
@@ -208,11 +208,11 @@ export default function Home() {
         <div style={{ maxWidth: 1280, margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: 44 }}>
             <h2 style={{ fontSize: 'clamp(1.6rem, 3vw, 2.2rem)', fontWeight: 800, margin: '0 0 10px', color: '#1F3D1A' }}>
-              How It <span style={{ color: '#3F6B35' }}>Works</span>
+              {t.howItWorks || 'How It Works'}
             </h2>
             <div className="section-divider" style={{ margin: '0 auto 14px' }} />
             <p style={{ color: '#485A43', maxWidth: 500, margin: '0 auto' }}>
-              A complete advisory pipeline from soil chemistry and leaf diagnosis to exact fertilizer kilos.
+              {t.pipelineDesc || 'A complete advisory pipeline from soil chemistry and leaf diagnosis to exact fertilizer kilos.'}
             </p>
           </div>
 
@@ -249,10 +249,10 @@ export default function Home() {
             <Shield size={32} color="#3F6B35" strokeWidth={1.75} />
           </div>
           <h2 style={{ fontSize: 'clamp(1.6rem, 3vw, 2.3rem)', fontWeight: 800, margin: '0 0 14px', color: '#1F3D1A' }}>
-            Ready to Optimize Your <span style={{ color: '#3F6B35' }}>Farm Yield?</span>
+            {t.readyToOptimize || 'Ready to Optimize Your Farm Yield?'}
           </h2>
           <p style={{ color: '#485A43', fontSize: '1.02rem', lineHeight: 1.65, marginBottom: 30 }}>
-            Input your soil test data or leaf scan and generate a comprehensive fertilizer plan right now.
+            {t.ctaDesc || 'Input your soil test data or leaf scan and generate a comprehensive fertilizer plan right now.'}
           </p>
           <div style={{ display: 'flex', gap: 14, justifyContent: 'center', flexWrap: 'wrap' }}>
             <Link to="/soil" className="btn-primary" style={{ fontSize: '0.98rem', padding: '13px 30px' }}>

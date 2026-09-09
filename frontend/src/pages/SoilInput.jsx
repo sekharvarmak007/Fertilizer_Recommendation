@@ -228,11 +228,11 @@ export default function SoilInput() {
                 display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
                 boxShadow: '0 4px 14px rgba(31, 61, 26, 0.12)'
               }}>
-                <div style={{ fontSize: '0.7rem', textTransform: 'uppercase', opacity: 0.85, fontWeight: 700 }}>Fertility</div>
+                <div style={{ fontSize: '0.7rem', textTransform: 'uppercase', opacity: 0.85, fontWeight: 700 }}>{t.fertility || 'Fertility'}</div>
                 <div style={{ fontSize: '1.05rem', fontWeight: 900 }}>{soilResult.fertility_class}</div>
               </div>
               <div>
-                <div style={{ fontSize: '0.85rem', color: '#485A43', marginBottom: 6, fontWeight: 600 }}>Confidence Score (XGBoost)</div>
+                <div style={{ fontSize: '0.85rem', color: '#485A43', marginBottom: 6, fontWeight: 600 }}>{t.confidenceScore || 'Confidence Score (XGBoost)'}</div>
                 <div className="progress-track" style={{ width: 170 }}>
                   <div className="progress-fill" style={{ width: `${(soilResult.confidence || 0) * 100}%`, background: 'linear-gradient(90deg, #3F6B35, #2F5E73)' }} />
                 </div>

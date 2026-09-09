@@ -57,7 +57,7 @@ export default function WeatherDashboard() {
             <input
               id="weather-city-input"
               className="form-input"
-              placeholder="Enter agricultural region or city (e.g. Hyderabad, Delhi)..."
+              placeholder={t.enterCityPlaceholder || 'Enter agricultural region or city (e.g. Hyderabad, Delhi)...'}
               value={city}
               onChange={e => setCity(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && fetchWeather()}
@@ -66,12 +66,12 @@ export default function WeatherDashboard() {
           </div>
           <button onClick={() => fetchWeather()} disabled={loading} className="btn-primary">
             {loading ? <RefreshCw size={15} style={{ animation: 'spin 1s linear infinite' }} /> : <Search size={15} />}
-            {loading ? 'Fetching...' : t.fetchWeather}
+            {loading ? (t.analyzing || 'Fetching...') : t.fetchWeather}
           </button>
         </div>
 
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'center' }}>
-          <span style={{ fontSize: '0.78rem', color: '#6E7F69', fontWeight: 800, textTransform: 'uppercase' }}>Quick Select:</span>
+          <span style={{ fontSize: '0.78rem', color: '#6E7F69', fontWeight: 800, textTransform: 'uppercase' }}>{t.quickSelect || 'Quick Select:'}</span>
           {POPULAR_CITIES.map(c => (
             <button key={c} onClick={() => { setCity(c); fetchWeather(c) }}
               style={{ padding: '4px 12px', borderRadius: 100, border: '1px solid rgba(31, 61, 26, 0.15)', background: '#FFFFFF', color: '#1F3D1A', fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer', transition: 'all 0.18s' }}
@@ -100,7 +100,7 @@ export default function WeatherDashboard() {
               <div style={{ fontSize: '3.4rem', fontWeight: 900, lineHeight: 1, color: '#1F3D1A' }}>
                 {weatherData.temperature}°<span style={{ fontSize: '1.8rem', color: '#2F5E73' }}>C</span>
               </div>
-              <div style={{ color: '#6E7F69', fontSize: '0.86rem', fontWeight: 600 }}>Feels like {weatherData.feels_like}°C</div>
+              <div style={{ color: '#6E7F69', fontSize: '0.86rem', fontWeight: 600 }}>{t.feelsLike || 'Feels like'} {weatherData.feels_like}°C</div>
             </div>
           </div>
 
@@ -112,7 +112,7 @@ export default function WeatherDashboard() {
                   <Icon size={22} color={color} strokeWidth={2} />
                 </div>
                 <div>
-                  <div style={{ fontSize: '0.74rem', color: '#6E7F69', fontWeight: 800, textTransform: 'uppercase', marginBottom: 2 }}>{label}</div>
+                  <div style={{ fontSize: '0.74rem', color: '#6E7F69', fontWeight: 800, textTransform: 'uppercase', marginBottom: 2 }}>{t[key] || label}</div>
                   <div style={{ fontSize: '1.35rem', fontWeight: 900, color: '#1F3D1A' }}>
                     {weatherData[key]}<span style={{ fontSize: '0.8rem', color: '#6E7F69', fontWeight: 600 }}> {unit}</span>
                   </div>

@@ -263,7 +263,7 @@ export default function Chatbot() {
                 <Bot size={19} color="#EEF0E4" />
               </div>
               <div style={{ background: '#FFFFFF', padding: '10px 16px', borderRadius: 14, color: '#485A43', fontSize: '0.86rem', border: '1px solid rgba(31, 61, 26, 0.1)' }}>
-                <RefreshCw size={14} style={{ animation: 'spin 1s linear infinite', display: 'inline', marginRight: 6 }} /> Gemini AI is analyzing your question & farm context...
+                <RefreshCw size={14} style={{ animation: 'spin 1s linear infinite', display: 'inline', marginRight: 6 }} /> {t.typingIndicator || 'Gemini AI is analyzing your question & farm context...'}
               </div>
             </div>
           )}
@@ -285,7 +285,7 @@ export default function Chatbot() {
           <button onClick={() => send()} disabled={loading || !input.trim()} className="btn-primary">
             <Send size={15} /> {t.send}
           </button>
-          <button onClick={clearChat} className="btn-secondary" title="Clear Chat">
+          <button onClick={clearChat} className="btn-secondary" title={t.clearChat || 'Clear Chat'}>
             <RefreshCw size={15} />
           </button>
         </div>
