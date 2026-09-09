@@ -4,28 +4,6 @@ import { getWeather } from '../api/agriApi'
 import useAgriStore from '../store/useAgriStore'
 import { TRANSLATIONS } from '../i18n/translations'
 
-const MOCK_WEATHER = {
-  city: 'Hyderabad',
-  country: 'IN',
-  temperature: 32.4,
-  feels_like: 36.1,
-  humidity: 72,
-  rainfall: 8.2,
-  wind_speed: 14.3,
-  wind_direction: 'SW',
-  description: 'Partly Cloudy',
-  visibility: 8.0,
-  pressure: 1008,
-  icon: '04d',
-  uv_index: 6,
-  impact: [
-    { factor: 'Fertilizer Timing', status: 'warning', message: 'Rainfall expected soon. Delay urea top-dressing by 2–3 days to avoid nutrient leaching.' },
-    { factor: 'Application Method', status: 'good', message: 'Humidity is optimal for foliar spray. Best applied during early morning hours.' },
-    { factor: 'Disease Risk', status: 'warning', message: 'High humidity (72%) increases fungal spore germination. Monitor for early blight.' },
-    { factor: 'Irrigation Scheduling', status: 'good', message: 'Recent showers satisfy moisture demand. Pause standard irrigation cycle.' },
-  ]
-}
-
 const weatherCards = [
   { key: 'temperature',  label: 'Temperature', unit: '°C',   icon: Thermometer, color: '#B5502A', bg: 'rgba(181, 80, 42, 0.12)' },
   { key: 'humidity',     label: 'Humidity',    unit: '%',    icon: Droplets,    color: '#2F5E73', bg: 'rgba(47, 94, 115, 0.12)' },
@@ -53,8 +31,8 @@ export default function WeatherDashboard() {
       const data = await getWeather(q)
       setWeatherData(data)
     } catch (err) {
-      setError('Using demo weather forecast data.')
-      setWeatherData({ ...MOCK_WEATHER, city: q || MOCK_WEATHER.city })
+      setError(err.message || 'Live weather could not be retrieved. Check the API key and try again.')
+      setWeatherData(null)
     } finally {
       setLoading(false)
     }
@@ -149,7 +127,7 @@ export default function WeatherDashboard() {
               <CloudSun size={18} color="#2F5E73" /> {t.advisoryRules}
             </h3>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 14 }}>
-              {(weatherData.impact || MOCK_WEATHER.impact).map(({ factor, status, message }) => {
+              {(weatherData.impact || []).map(({ factor, status, message }) => {
                 const isGood = status === 'good'
                 return (
                   <div key={factor} style={{

@@ -55,49 +55,51 @@ class WeatherInput(BaseModel):
 @router.post("/weather")
 async def get_weather(data: WeatherInput):
     """Fetch real-time weather data and agricultural impact analysis."""
-    api_key = settings.openweathermap_api_key
+    api_key = settings.openweathermap_api_key.strip()
+
+    if not api_key or api_key == "your_openweathermap_api_key_here":
+        raise HTTPException(
+            status_code=503,
+            detail="Live weather is unavailable. Configure a valid OPENWEATHERMAP_API_KEY in backend/.env.",
+        )
 
     weather_data = None
-    if api_key:
-        try:
-            if data.lat and data.lon:
-                url = f"https://api.openweathermap.org/data/2.5/weather?lat={data.lat}&lon={data.lon}&appid={api_key}&units=metric"
-            else:
-                url = f"https://api.openweathermap.org/data/2.5/weather?q={data.city}&appid={api_key}&units=metric"
+    try:
+        if data.lat is not None and data.lon is not None:
+            url = f"https://api.openweathermap.org/data/2.5/weather?lat={data.lat}&lon={data.lon}&appid={api_key}&units=metric"
+        else:
+            url = f"https://api.openweathermap.org/data/2.5/weather?q={data.city}&appid={api_key}&units=metric"
 
-            async with httpx.AsyncClient(timeout=10.0) as client:
-                response = await client.get(url)
-                if response.status_code == 200:
-                    raw = response.json()
-                    weather_data = {
-                        "city": raw.get("name", data.city),
-                        "country": raw.get("sys", {}).get("country", ""),
-                        "temperature": round(raw["main"]["temp"], 1),
-                        "feels_like": round(raw["main"]["feels_like"], 1),
-                        "humidity": raw["main"]["humidity"],
-                        "rainfall": round(raw.get("rain", {}).get("1h", 0), 1),
-                        "wind_speed": round(raw["wind"]["speed"] * 3.6, 1),  # m/s → km/h
-                        "wind_direction": _wind_dir(raw["wind"].get("deg", 0)),
-                        "pressure": raw["main"]["pressure"],
-                        "visibility": round(raw.get("visibility", 10000) / 1000, 1),
-                        "description": raw["weather"][0]["description"].title(),
-                        "icon": raw["weather"][0]["icon"],
-                    }
-        except Exception as e:
-            print(f"[Weather] API error: {e}")
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            response = await client.get(url)
 
-    if weather_data is None:
-        # Fallback mock
+        if response.status_code == 401:
+            raise HTTPException(status_code=503, detail="OpenWeather rejected the API key. Check OPENWEATHERMAP_API_KEY in backend/.env.")
+        if response.status_code == 404:
+            raise HTTPException(status_code=404, detail=f"No weather location was found for '{data.city}'.")
+        if response.status_code != 200:
+            raise HTTPException(status_code=503, detail=f"OpenWeather request failed with status {response.status_code}.")
+
+        raw = response.json()
         weather_data = {
-            "city": data.city, "country": "IN",
-            "temperature": 32.4, "feels_like": 36.1,
-            "humidity": 72, "rainfall": 8.2,
-            "wind_speed": 14.3, "wind_direction": "SW",
-            "pressure": 1008, "visibility": 8.0,
-            "description": "Partly Cloudy",
-            "icon": "04d",
-            "note": "Demo data — add OPENWEATHERMAP_API_KEY to .env for live data",
+            "city": raw.get("name", data.city),
+            "country": raw.get("sys", {}).get("country", ""),
+            "temperature": round(raw["main"]["temp"], 1),
+            "feels_like": round(raw["main"]["feels_like"], 1),
+            "humidity": raw["main"]["humidity"],
+            "rainfall": round(raw.get("rain", {}).get("1h", 0), 1),
+            "wind_speed": round(raw["wind"]["speed"] * 3.6, 1),  # m/s -> km/h
+            "wind_direction": _wind_dir(raw["wind"].get("deg", 0)),
+            "pressure": raw["main"]["pressure"],
+            "visibility": round(raw.get("visibility", 10000) / 1000, 1),
+            "description": raw["weather"][0]["description"].title(),
+            "icon": raw["weather"][0]["icon"],
         }
+    except HTTPException:
+        raise
+    except (httpx.HTTPError, KeyError, TypeError, ValueError) as e:
+        print(f"[Weather] API error: {e}")
+        raise HTTPException(status_code=503, detail="Live weather could not be retrieved. Check the API key and network connection.")
 
     # Generate agricultural impact
     impact = []

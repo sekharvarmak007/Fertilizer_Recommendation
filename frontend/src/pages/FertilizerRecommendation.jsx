@@ -270,8 +270,8 @@ export default function FertilizerRecommendation() {
 
     // 4. Commercial Fertilizer Dosages (kg/acre)
     const ureaKg = Math.round((deficitN / 0.46) * 0.4536 * 10) / 10
-    const mapKg = Math.round((cropProfile.p_req / 0.52) * 0.4536 * 10) / 10
-    const mopKg = Math.round((cropProfile.k_req / 0.61) * 0.4536 * 10) / 10
+    const mapKg = Math.round((deficitP / 0.52) * 0.4536 * 10) / 10
+    const mopKg = Math.round((deficitK / 0.61) * 0.4536 * 10) / 10
 
     return {
       availN, availP, availK, somAdj,

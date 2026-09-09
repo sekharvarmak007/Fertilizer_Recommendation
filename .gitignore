@@ -26,6 +26,12 @@ __pycache__/
 .env.*.local
 *.log
 
+# Uploads & Temp Files
+uploads/
+**/uploads/
+scratch/
+**/scratch/
+
 # IDE & OS Artifacts
 .vscode/
 .idea/

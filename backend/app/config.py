@@ -36,7 +36,7 @@ class Settings(BaseSettings):
 
     # Upload
     upload_dir: str = "uploads"
-    max_file_size_mb: int = 10
+    max_file_size_mb: int = 50
 
     class Config:
         env_file = ".env"

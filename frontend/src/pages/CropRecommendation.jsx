@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Leaf, Send, RefreshCw, Droplets, Thermometer, Wind, CloudRain, CheckCircle2 } from 'lucide-react'
 import { getCropRecommendation } from '../api/agriApi'
 import useAgriStore from '../store/useAgriStore'
@@ -30,9 +31,15 @@ export default function CropRecommendation() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const { cropResult, setCropResult, setSelectedCrop, language } = useAgriStore()
+  const navigate = useNavigate()
   const t = TRANSLATIONS[language] || TRANSLATIONS.en
 
   const handleChange = (key, val) => setForm(f => ({ ...f, [key]: parseFloat(val) || 0 }))
+
+  const handleSelectForFertilizer = (crop) => {
+    setSelectedCrop(crop)
+    navigate('/fertilizer')
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -159,7 +166,7 @@ export default function CropRecommendation() {
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
                       <button
-                        onClick={(e) => { e.stopPropagation(); setSelectedCrop(crop) }}
+                        onClick={(e) => { e.stopPropagation(); handleSelectForFertilizer(crop) }}
                         className="btn-secondary"
                         style={{ fontSize: '0.78rem', padding: '5px 12px' }}
                       >

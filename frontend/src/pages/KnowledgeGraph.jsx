@@ -10,6 +10,30 @@ import {
 import useAgriStore from '../store/useAgriStore'
 import { TRANSLATIONS } from '../i18n/translations'
 
+const ADDITIONAL_CROP_NAMES = [
+  ['jute', 'Jute', '🌾'], ['coffee', 'Coffee', '☕'], ['tea', 'Tea', '🍵'],
+  ['rubber', 'Rubber', '🌳'], ['coconut', 'Coconut', '🥥'], ['papaya', 'Papaya', '🍈'],
+  ['orange', 'Orange', '🍊'], ['apple', 'Apple', '🍎'], ['muskmelon', 'Muskmelon', '🍈'],
+  ['watermelon', 'Watermelon', '🍉'], ['grapes', 'Grapes', '🍇'], ['mango', 'Mango', '🥭'],
+  ['pomegranate', 'Pomegranate', '🍎'], ['lentil', 'Lentil', '🫘'], ['blackgram', 'Blackgram', '🫘'],
+  ['mungbean', 'Mungbean', '🫘'], ['mothbeans', 'Mothbeans', '🫘'], ['pigeonpeas', 'Pigeonpeas', '🫘'],
+  ['kidneybeans', 'Kidneybeans', '🫘'], ['chickpea', 'Chickpea', '🫘'],
+  ['potato', 'Potato', '🥔'], ['tomato', 'Tomato', '🍅'], ['soybean', 'Soybean', '🌱'],
+]
+
+const additionalCropNodes = ADDITIONAL_CROP_NAMES.map(([id, label, icon]) => ({
+  id, label, type: 'crop', color: '#3F6B35', size: 14, icon,
+  details: {
+    description: `${label} field profile. Select this crop to view its active nutrient and fertilizer pathway.`,
+  },
+}))
+
+const additionalCropLinks = ADDITIONAL_CROP_NAMES.flatMap(([id]) => [
+  { source: id, target: 'nitrogen', label: 'NEEDS', color: 'rgba(63, 107, 53, 0.35)' },
+  { source: id, target: 'phosphorus', label: 'NEEDS', color: 'rgba(63, 107, 53, 0.3)' },
+  { source: id, target: 'potassium', label: 'NEEDS', color: 'rgba(63, 107, 53, 0.3)' },
+])
+
 // ─── Static KG Data ───────────────────────────────────────────────
 export const KG_DATA = {
   nodes: [
@@ -38,6 +62,11 @@ export const KG_DATA = {
       id: 'groundnut', label: 'Groundnut', type: 'crop', color: '#3F6B35', size: 14,
       icon: '🥜', details: { scientific: 'Arachis hypogaea', season: 'Kharif', duration: '90–130 days', water_req: 'Low–Moderate (500–700 mm)', soil_type: 'Sandy Loam', n_req: 'Low (fixes N₂)', p_req: 'High', k_req: 'Medium', diseases: 'Tikka Leaf Spot, Rust', description: 'Legume fixing atmospheric N. Phosphorus and calcium/gypsum at pegging are critical for pod filling.' }
     },
+    {
+      id: 'banana', label: 'Banana', type: 'crop', color: '#3F6B35', size: 15,
+      icon: '🍌', details: { scientific: 'Musa spp.', season: 'Perennial', duration: '9–14 months', water_req: 'High', soil_type: 'Deep Loamy / Well-drained', n_req: 'High', p_req: 'Medium', k_req: 'Very High', diseases: 'Sigatoka, Panama Disease', description: 'A high-potassium feeder. Maintain steady moisture and split fertilizer applications throughout the growing cycle.' }
+    },
+    ...additionalCropNodes,
 
     // Nutrients
     {
@@ -141,10 +170,17 @@ export const KG_DATA = {
   ],
 
   links: [
+    ...additionalCropLinks,
     // Crop → Nutrient
     { source: 'rice', target: 'nitrogen', label: 'NEEDS', color: 'rgba(63, 107, 53, 0.4)' },
     { source: 'rice', target: 'phosphorus', label: 'NEEDS', color: 'rgba(63, 107, 53, 0.3)' },
     { source: 'rice', target: 'potassium', label: 'NEEDS', color: 'rgba(63, 107, 53, 0.3)' },
+    { source: 'banana', target: 'nitrogen', label: 'NEEDS', color: 'rgba(63, 107, 53, 0.4)' },
+    { source: 'banana', target: 'phosphorus', label: 'NEEDS', color: 'rgba(63, 107, 53, 0.3)' },
+    { source: 'banana', target: 'potassium', label: 'NEEDS', color: 'rgba(63, 107, 53, 0.3)' },
+    { source: 'banana', target: 'urea', label: 'FERTILIZED_BY', color: 'rgba(92, 58, 33, 0.35)' },
+    { source: 'banana', target: 'mop', label: 'FERTILIZED_BY', color: 'rgba(92, 58, 33, 0.35)' },
+    { source: 'banana', target: 'dap', label: 'FERTILIZED_BY', color: 'rgba(92, 58, 33, 0.35)' },
     { source: 'wheat', target: 'nitrogen', label: 'NEEDS', color: 'rgba(63, 107, 53, 0.4)' },
     { source: 'wheat', target: 'phosphorus', label: 'NEEDS', color: 'rgba(63, 107, 53, 0.4)' },
     { source: 'maize', target: 'nitrogen', label: 'NEEDS', color: 'rgba(63, 107, 53, 0.4)' },
@@ -394,7 +430,6 @@ export default function KnowledgeGraph() {
     const targetCrop = (selectedCrop || cropResult?.recommended_crops?.[0]?.crop || 'rice').toLowerCase()
     const matchingCrop = KG_DATA.nodes.find(n => n.type === 'crop' && n.id.includes(targetCrop))
     if (matchingCrop) active.add(matchingCrop.id)
-    else active.add('rice')
 
     // Nutrients
     const nVal = Number(soilData?.nitrogen ?? 90)
@@ -456,6 +491,7 @@ export default function KnowledgeGraph() {
 
   // Auto-focus on active pathway when viewMode is active_pathway
   useEffect(() => {
+    setSelectedNode(null)
     if (viewMode === 'active_pathway' && fgRef.current) {
       setTimeout(() => {
         fgRef.current?.zoomToFit(600, 40)
@@ -715,6 +751,11 @@ export default function KnowledgeGraph() {
             linkDirectionalParticles={l => activeSessionNodes.has(l.source.id || l.source) ? 2 : 0}
             linkDirectionalParticleWidth={2}
             linkDirectionalParticleColor={l => RELATION_COLORS[l.label] || '#3F6B35'}
+            d3VelocityDecay={0.45}
+            d3AlphaDecay={0.08}
+            d3AlphaMin={0.02}
+            warmupTicks={80}
+            cooldownTicks={120}
             onNodeClick={handleNodeClick}
             onNodeHover={handleNodeHover}
             nodeCanvasObjectMode={() => 'replace'}
@@ -726,6 +767,7 @@ export default function KnowledgeGraph() {
                 const isSelected = selectedNode?.id === node.id
                 const isActive = activeSessionNodes.has(node.id)
                 const isHighlighted = highlightNodes.size === 0 || highlightNodes.has(node.id)
+                const showLabel = viewMode === 'active_pathway' || isActive || isSelected || highlightNodes.has(node.id)
 
                 const baseSize = node.size || 12
                 const r = Math.min(15, Math.max(3.5, baseSize / Math.max(0.6, kScale)))
@@ -764,7 +806,7 @@ export default function KnowledgeGraph() {
                 ctx.stroke()
 
                 // Compact Node Label Badge (micro font wrapped in clean white pill)
-                if (kScale > 0.35) {
+                if (kScale > 0.35 && showLabel) {
                   const fontSize = Math.max(5, Math.min(8.5, 6.5 / Math.max(0.4, kScale)))
                   ctx.font = `${isActive ? '700 ' : '600 '}${fontSize}px Inter, -apple-system, sans-serif`
                   ctx.textAlign = 'center'
@@ -812,6 +854,11 @@ export default function KnowledgeGraph() {
                 const start = link.source
                 const end = link.target
                 if (!start?.x || !end?.x || !isFinite(start.x) || !isFinite(end.x)) return
+
+                const linkIsRelevant = activeSessionNodes.has(start.id) || activeSessionNodes.has(end.id) ||
+                  selectedNode?.id === start.id || selectedNode?.id === end.id ||
+                  highlightNodes.has(start.id) || highlightNodes.has(end.id)
+                if (viewMode === 'full_graph' && !linkIsRelevant) return
 
                 const mx = (start.x + end.x) / 2
                 const my = (start.y + end.y) / 2

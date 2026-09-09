@@ -53,7 +53,7 @@ def get_disease_model():
             except Exception as e:
                 print(f"[DiseaseModel] Load error: {e}")
         else:
-            print(f"[DiseaseModel] WARNING: Not found at {model_path}. Using mock.")
+            print(f"[DiseaseModel] WARNING: Not found at {model_path}")
     return _disease_model
 
 
@@ -62,7 +62,7 @@ def predict_disease(image_path: str):
     model = get_disease_model()
 
     if model is None:
-        return _mock_disease_result()
+        return _unavailable_result("The plant disease model could not be loaded.")
 
     try:
         results = model(image_path, verbose=False)
@@ -90,19 +90,18 @@ def predict_disease(image_path: str):
             }
     except Exception as e:
         print(f"[DiseaseModel] Inference error: {e}")
+        return _unavailable_result("Plant disease inference failed for this image.")
 
-    return _mock_disease_result()
+    return _unavailable_result("The model did not return a classification for this image.")
 
 
-def _mock_disease_result():
+def _unavailable_result(message: str):
     return {
-        'disease_label': 'Tomato — Early blight',
-        'confidence': 0.89,
-        'disease_classes': [
-            {'label': 'Tomato — Early blight', 'confidence': 0.89},
-            {'label': 'Tomato — Late blight',  'confidence': 0.07},
-            {'label': 'Tomato — healthy',       'confidence': 0.04},
-        ],
-        'treatment': DISEASE_TREATMENTS['Early_blight'],
-        'note': 'Demo result — model not loaded'
+        'error': True,
+        'error_message': message,
+        'disease_label': 'Not Available',
+        'confidence': 0.0,
+        'disease_classes': [],
+        'treatment': 'No treatment was generated because the image was not classified.',
+        'source': 'model_unavailable',
     }

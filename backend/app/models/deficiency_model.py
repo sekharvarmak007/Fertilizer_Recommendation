@@ -42,7 +42,7 @@ def get_deficiency_model():
             except Exception as e:
                 print(f"[DeficiencyModel] Load error: {e}")
         else:
-            print(f"[DeficiencyModel] WARNING: Not found at {model_path}. Using mock.")
+            print(f"[DeficiencyModel] WARNING: Not found at {model_path}")
     return _deficiency_model
 
 
@@ -51,7 +51,7 @@ def predict_deficiency(image_path: str):
     model = get_deficiency_model()
 
     if model is None:
-        return _mock_deficiency_result()
+        return _unavailable_result("The nutrient deficiency model could not be loaded.")
 
     try:
         results = model(image_path, verbose=False)
@@ -76,7 +76,9 @@ def predict_deficiency(image_path: str):
                     correction_key = k
                     break
 
-            correction = DEFICIENCY_CORRECTIONS.get(correction_key, DEFICIENCY_CORRECTIONS['Nitrogen Deficiency'])
+            correction = DEFICIENCY_CORRECTIONS.get(correction_key)
+            if correction is None:
+                return _unavailable_result(f"The model returned an unsupported class: {top_label}.")
             return {
                 'deficiency_type': top_label,
                 'confidence': round(top_conf, 4),
@@ -85,20 +87,18 @@ def predict_deficiency(image_path: str):
             }
     except Exception as e:
         print(f"[DeficiencyModel] Inference error: {e}")
+        return _unavailable_result("Nutrient deficiency inference failed for this image.")
 
-    return _mock_deficiency_result()
+    return _unavailable_result("The model did not return a classification for this image.")
 
 
-def _mock_deficiency_result():
-    correction = DEFICIENCY_CORRECTIONS['Nitrogen Deficiency']
+def _unavailable_result(message: str):
     return {
-        'deficiency_type': 'Nitrogen Deficiency',
-        'confidence': 0.92,
-        'deficiency_classes': [
-            {'label': 'Nitrogen Deficiency',   'confidence': 0.92},
-            {'label': 'Phosphorus Deficiency', 'confidence': 0.05},
-            {'label': 'Healthy',               'confidence': 0.03},
-        ],
-        **correction,
-        'note': 'Demo result — model not loaded'
+        'error': True,
+        'error_message': message,
+        'deficiency_type': 'Not Available',
+        'confidence': 0.0,
+        'deficiency_classes': [],
+        'advice': 'No correction plan was generated because the image was not classified.',
+        'source': 'model_unavailable',
     }

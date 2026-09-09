@@ -1,4 +1,6 @@
 import json
+import base64
+import re
 import logging
 from typing import Optional, Dict, Any
 import httpx
@@ -194,4 +196,160 @@ def _generate_fallback_prescription(context: Dict[str, Any]) -> Dict[str, Any]:
         "source": "rule_based_engine",
         "model": "offline_agronomic_engine",
         "status": "fallback",
+    }
+
+
+# ─── Gemini Vision Leaf Disease Analysis ───────────────────────────────────────
+
+LEAF_VISION_PROMPT = """You are an expert plant pathologist AI. Analyze this leaf image carefully.
+
+Respond ONLY with a valid JSON object in this exact format (no markdown, no extra text):
+{
+  "plant_type": "<identified plant species, e.g. Tomato, Rice, Mango, unknown>",
+  "disease_name": "<specific disease name, or 'Healthy' if no disease>",
+  "is_healthy": <true or false>,
+  "confidence": <float 0.0 to 1.0>,
+  "disease_type": "<Fungal / Bacterial / Viral / Nutrient Deficiency / Healthy>",
+  "symptoms": "<brief description of visible symptoms on this leaf>",
+  "severity": "<Mild / Moderate / Severe / None>",
+  "treatment": "<specific actionable treatment advice, pesticide names and doses if applicable>",
+  "prevention": "<preventive measures for the future>",
+  "top_alternatives": [
+    {"label": "<disease name>", "confidence": <float>},
+    {"label": "<disease name>", "confidence": <float>}
+  ]
+}
+
+Be accurate. If the image is not a plant leaf, set disease_name to 'Invalid Image' and is_healthy to false."""
+
+
+async def analyze_leaf_disease_with_gemini(image_path: str) -> dict:
+    """
+    Analyze a leaf image using Gemini Vision API to detect plant diseases.
+    Returns a structured diagnosis dict. Never returns mock/fake data.
+    """
+    api_key = settings.gemini_api_key.strip()
+
+    # No API key configured
+    if not api_key or api_key in ("your_gemini_api_key_here", ""):
+        return {
+            "error": True,
+            "error_message": "Gemini API key not configured. Please add your GEMINI_API_KEY in backend/.env to enable real AI leaf diagnosis.",
+            "disease_name": "Not Available",
+            "plant_type": "Unknown",
+            "is_healthy": False,
+            "confidence": 0.0,
+            "disease_type": "Unknown",
+            "symptoms": "AI analysis unavailable — API key required.",
+            "severity": "Unknown",
+            "treatment": "Please configure your Gemini API key in backend/.env to get real disease detection.",
+            "prevention": "",
+            "top_alternatives": [],
+            "source": "no_api_key",
+        }
+
+    # Read and optimize image (compress high-res PNG/JPG for fast API delivery)
+    try:
+        from PIL import Image
+        import io
+        with Image.open(image_path) as img:
+            if img.mode in ("RGBA", "P"):
+                img = img.convert("RGB")
+            img.thumbnail((1600, 1600))
+            buf = io.BytesIO()
+            img.save(buf, format="JPEG", quality=85)
+            image_bytes = buf.getvalue()
+        image_b64 = base64.b64encode(image_bytes).decode("utf-8")
+        mime_type = "image/jpeg"
+    except Exception as e:
+        try:
+            with open(image_path, "rb") as f:
+                image_bytes = f.read()
+            image_b64 = base64.b64encode(image_bytes).decode("utf-8")
+            ext = image_path.lower().split(".")[-1]
+            mime_map = {"jpg": "image/jpeg", "jpeg": "image/jpeg", "png": "image/png", "webp": "image/webp"}
+            mime_type = mime_map.get(ext, "image/jpeg")
+        except Exception as ex:
+            logger.error(f"[GeminiVision] Failed to read image: {ex}")
+            return {"error": True, "error_message": f"Could not read image file: {ex}", "disease_name": "Error", "source": "image_read_error"}
+
+    candidate_models = [
+        "gemini-3.6-flash",
+        "gemini-flash-latest",
+    ]
+
+    payload = {
+        "contents": [{
+            "parts": [
+                {"text": LEAF_VISION_PROMPT},
+                {"inline_data": {"mime_type": mime_type, "data": image_b64}}
+            ]
+        }],
+        "generationConfig": {
+            "temperature": 0.1,
+            "topP": 0.95,
+            "maxOutputTokens": 1024,
+        }
+    }
+
+    import asyncio
+
+    for model in candidate_models:
+        for attempt in range(3):  # Retry up to 3 times on 503 / temporary capacity error
+            try:
+                url = f"{GEMINI_API_URL.format(model=model)}?key={api_key}"
+                async with httpx.AsyncClient(timeout=90.0) as client:
+                    resp = await client.post(url, json=payload, headers={"Content-Type": "application/json"})
+
+                if resp.status_code == 200:
+                    data = resp.json()
+                    candidates_list = data.get("candidates", [])
+                    if candidates_list:
+                        text = candidates_list[0].get("content", {}).get("parts", [{}])[0].get("text", "")
+                        text = re.sub(r"```json\s*|```\s*", "", text).strip()
+                        try:
+                            result = json.loads(text)
+                            result["source"] = "gemini_vision"
+                            result["model"] = model
+                            result["error"] = False
+                            result.setdefault("disease_name", "Unknown")
+                            result.setdefault("plant_type", "Unknown")
+                            result.setdefault("confidence", 0.85)
+                            result.setdefault("top_alternatives", [])
+                            result.setdefault("treatment", "Consult an agronomist.")
+                            result.setdefault("symptoms", "")
+                            result.setdefault("severity", "Unknown")
+                            result.setdefault("disease_type", "Unknown")
+                            result.setdefault("is_healthy", False)
+                            logger.info(f"[GeminiVision] Success with model {model}: {result.get('disease_name')}")
+                            return result
+                        except json.JSONDecodeError:
+                            logger.warning(f"[GeminiVision] Could not parse JSON from {model}: {text[:200]}")
+                            break
+                elif resp.status_code in (503, 429) and attempt < 2:
+                    logger.warning(f"[GeminiVision] {model} returned HTTP {resp.status_code} (attempt {attempt+1}/3). Retrying in 1.5s...")
+                    await asyncio.sleep(1.5)
+                    continue
+                else:
+                    logger.warning(f"[GeminiVision] HTTP {resp.status_code} from {model}: {resp.text[:200]}")
+                    break
+            except Exception as e:
+                logger.warning(f"[GeminiVision] Model {model} attempt {attempt+1} failed: {e}")
+                if attempt < 2:
+                    await asyncio.sleep(1.0)
+
+    return {
+        "error": True,
+        "error_message": "All Gemini Vision models failed. Check your API key and network connection.",
+        "disease_name": "Analysis Failed",
+        "plant_type": "Unknown",
+        "is_healthy": False,
+        "confidence": 0.0,
+        "disease_type": "Unknown",
+        "symptoms": "Could not complete analysis.",
+        "severity": "Unknown",
+        "treatment": "Please try again or check your API key.",
+        "prevention": "",
+        "top_alternatives": [],
+        "source": "gemini_error",
     }
